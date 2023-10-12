@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Example</title>
+    <style>
+        body {
+            margin-top: 100px;
+            font-family: 'Trebuchet MS', serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 500px;
+            margin: 0 auto;
+        }
+
+        ul.tabs {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        ul.tabs li {
+            background: none;
+            color: #222;
+            display: inline-block;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        ul.tabs li.current {
+            background: #ededed;
+            color: #222;
+        }
+
+        .tab-content {
+            display: none;
+            background: #ededed;
+            padding: 15px;
+        }
+
+        .tab-content.current {
+            display: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <ul class="tabs">
+            <li class="tab-link current" data-tab="tab-1">tab1</li>
+            <li class="tab-link" data-tab="tab-2">tab2</li>
+            <li class="tab-link" data-tab="tab-3">tab3</li>
+        </ul>
+
+        <div id="tab-1" class="tab-content current">tab content1</div>
+        <div id="tab-2" class="tab-content">tab content2</div>
+        <div id="tab-3" class="tab-content">tab content3</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tabLinks = document.querySelectorAll(".tab-link");
+            const tabContents = document.querySelectorAll(".tab-content");
+
+            tabLinks.forEach(function (link) {
+                link.addEventListener("click", function () {
+                    const tabId = this.getAttribute("data-tab");
+
+                    tabLinks.forEach(function (tabLink) {
+                        tabLink.classList.remove("current");
+                    });
+                    tabContents.forEach(function (tabContent) {
+                        tabContent.classList.remove("current");
+                    });
+
+                    this.classList.add("current");
+                    document.getElementById(tabId).classList.add("current");
+                });
+            });
+        });
+    </script>
+</body>
+</html>

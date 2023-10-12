@@ -1,0 +1,83 @@
+
+{
+  "name": "AntiBug",
+  "displayName": "AntiBug",
+  "description": "AntiBug",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.83.0"
+  },
+  "categories": [
+    "Other"
+  ],
+
+  "activationEvents": [],
+  "main": "./extension.js",
+
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "AntiBug-activityBarIcon",
+          "title": "AntiBug",
+          "icon": "./images/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "AntiBug-activityBarIcon": [
+        {
+          "id": "AntiBug",
+          "name": "AntiBug",
+          "icon": "./images/logo.png"
+        }
+      ],
+      "AntiBugView": [
+        {
+          "id": "AntiBugView",
+          "name": "AntiBug View 여긴가",
+          "icon": "./images/view.png"
+        }
+      ]
+    },
+    "statusBar": [
+      {
+        "id": "AntiBug.statusBarIcon",
+        "alignment": "right",
+        "priority": 100,
+        "text": "$(bug)",
+        "tooltip": "AntiBug Icon Tooltip",
+        "command": "AntiBug.start",
+        "color": "#FFFFFF",
+        "file": "./images/logo.png"
+      }
+    ],
+    "commands": [
+      {
+        "command": "AntiBug.start",
+        "title": "AntiBug"
+      },
+      {
+        "command": "AntiBug.toggleView",
+        "title": "Toggle AntiBug View"
+      }
+    ]
+  },
+
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.2",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.83.0",
+    "@vscode/test-electron": "^2.3.4",
+    "esbuild": "^0.19.4",
+    "eslint": "^8.50.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2"
+  }
+}
