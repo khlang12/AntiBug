@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Example</title>
+    <link id="theme-style" rel="stylesheet" href="">
+</head>
+<body>
+    <div class="container">
+        <!-- ... your content ... -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tabLinks = document.querySelectorAll(".tab-link");
+            const tabContents = document.querySelectorAll(".tab-content");
+
+            tabLinks.forEach(function (link) {
+                link.addEventListener("click", function () {
+                    const tabId = this.getAttribute("data-tab");
+
+                    tabLinks.forEach(function (tabLink) {
+                        tabLink.classList.remove("current");
+                    });
+                    tabContents.forEach(function (tabContent) {
+                        tabContent.classList.remove("current");
+                    });
+
+                    this.classList.add("current");
+                    document.getElementById(tabId).classList.add("current");
+                });
+            });
+        });
+    </script>
+</body>
+</html>

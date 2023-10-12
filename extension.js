@@ -25,10 +25,10 @@ async function activate(context) {
         vscode.window.showInformationMessage('Start AntiBug project from AntiBug!');
 
         if (currentPanel) {
-            // 이미 current panel이 있다면, 2번째 panel에 열기
+            // 이미 current panel이 있다면, 2번째 panel 열기
             currentPanel.reveal(vscode.ViewColumn.Two);
         } else {
-            // 아니라면, 새 패널에 열기
+            // 아니라면, 새 패널 열기
             currentPanel = vscode.window.createWebviewPanel(
                 'ResultView', // View ID
                 'Result', // View 제목
@@ -40,7 +40,7 @@ async function activate(context) {
 
             // View에 HTML 콘텐츠 설정
             try {
-                const htmlContent = await getWebviewContent();
+                const htmlContent = await getWebviewContent(context);
                 currentPanel.webview.html = htmlContent;
             } catch (error) {
                 console.error('Error loading HTML content:', error);
@@ -66,7 +66,7 @@ async function activate(context) {
     context.subscriptions.push(disposable, statusBarItem);
 }
 
-async function getWebviewContent() {
+async function getWebviewContent(context) {
     // 외부 HTML 파일 경로 (testing.html 파일이 extension 루트에 있는 경우)
     const htmlFilePath = vscode.Uri.file(context.extensionPath + '/testing.html');
 
