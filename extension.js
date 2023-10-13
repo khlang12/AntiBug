@@ -22,6 +22,17 @@ async function activate(context) {
     // StatusBar 아이콘을 추가
     statusBarItem.show();
 
+    // View를 토글하기 위한 코드
+    // 근데 이거 탐색기에 들어가면 안되고 AntiBug - Activity bar에서 실행되어야 하는 건디..
+    if (treeView) {
+        treeView.dispose();
+        treeView = undefined;
+    } else {
+        treeView = vscode.window.createTreeView('AntiBugView', {
+            treeDataProvider: new AntiBugViewDataProvider(),
+        });
+    }
+
     // "AntiBug.testing" 명령 등록
     let disposable = vscode.commands.registerCommand('AntiBug.testing', async function () {
 
@@ -54,18 +65,14 @@ async function activate(context) {
             currentPanel.onDidDispose(() => {
                 currentPanel = undefined;
             });
-
-            // View를 토글하기 위한 코드
-            if (treeView) {
-                treeView.dispose();
-                treeView = undefined;
-            } else {
-                treeView = vscode.window.createTreeView('AntiBugView', {
-                    treeDataProvider: new AntiBugViewDataProvider(),
-                });
-            }
         }
     });
+
+    // "AntiBug.security-analysis" 명령 등록
+
+
+    // "AntiBug.openai" 명령 등록
+
 
     context.subscriptions.push(disposable, statusBarItem);
 }

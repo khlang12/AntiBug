@@ -38,8 +38,7 @@
       "AntiBugView": [
         {
           "id": "AntiBugView",
-          "name": "AntiBug View 여긴가",
-          "icon": "./images/view.png"
+          "name": "AntiBug View 여긴가"  
         }
       ]
     },
@@ -61,8 +60,17 @@
         "title": "AntiBug Testing"
       },
       {
+        "command": "AntiBug.security-analysis",
+        "title" : "AntiBug Security Analysis"
+      },
+      {
+        "command": "AntiBug.openai",
+        "title": "AntiBug OpenAI"
+      },
+      {
         "command": "AntiBug.toggleView",
-        "title": "Toggle AntiBug View"
+        "title": "Toggle AntiBug View",
+        "comment" : "음 이 명령어 안 쓰이는 것 같은데용 그래도 혹시 모르니 냅둔다"
       }
     ]
   },
