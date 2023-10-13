@@ -1,8 +1,9 @@
 
 {
-  "name": "AntiBug",
+  "name": "antibug",
   "displayName": "AntiBug",
   "description": "AntiBug",
+  "icon" : "./images/my-icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.83.0"
@@ -11,8 +12,10 @@
     "Other"
   ],
 
+
   "activationEvents": [],
   "main": "./extension.js",
+
 
   "contributes": {
     "viewsContainers": {
@@ -40,22 +43,22 @@
         }
       ]
     },
-    "statusBar": [
+    "statusbar": [
       {
         "id": "AntiBug.statusBarIcon",
         "alignment": "right",
         "priority": 100,
-        "text": "$(bug)",
+        "text": "$(my-icon.png)",
         "tooltip": "AntiBug Icon Tooltip",
         "command": "AntiBug.start",
         "color": "#FFFFFF",
-        "file": "./images/logo.png"
+        "icon": "./images/my-icon.png"
       }
     ],
     "commands": [
       {
-        "command": "AntiBug.start",
-        "title": "AntiBug"
+        "command": "AntiBug.testing",
+        "title": "AntiBug Testing"
       },
       {
         "command": "AntiBug.toggleView",

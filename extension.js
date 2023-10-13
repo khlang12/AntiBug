@@ -10,16 +10,20 @@ let currentPanel;
 async function activate(context) {
     console.log('Congratulations, your extension "AntiBug" is now active!');
 
-    // StatusBar 아이콘 생성
+    // StatusBar 아이콘 생성 >>>>>실패했어<<<<<< 왠지 모르겠네ㅜㅜ
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-    statusBarItem.text = '$(bug)';
+    statusBarItem.text = '$(my-icon)';
     statusBarItem.tooltip = 'AntiBug project from AntiBug';
+    statusBarItem.command = '';     // 아이콘 누르면 어떤 명령 실행될지
+
+    // 이거 왜 안 되냐고!!!!!!!!!!1
+    console.log('###### statusBarItem.text ######', statusBarItem.text);
 
     // StatusBar 아이콘을 추가
     statusBarItem.show();
 
-    // "AntiBug.start" 명령 등록
-    let disposable = vscode.commands.registerCommand('AntiBug.start', async function () {
+    // "AntiBug.testing" 명령 등록
+    let disposable = vscode.commands.registerCommand('AntiBug.testing', async function () {
 
         // message 팝업 띄우기
         vscode.window.showInformationMessage('Start AntiBug project from AntiBug!');
@@ -31,7 +35,7 @@ async function activate(context) {
             // 아니라면, 새 패널 열기
             currentPanel = vscode.window.createWebviewPanel(
                 'ResultView', // View ID
-                'Result', // View 제목
+                '[1] Testing', // View 제목
                 vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
                 {
                     enableScripts: true // 웹페이지 스크립트 사용 가능
