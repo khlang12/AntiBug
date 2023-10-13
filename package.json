@@ -38,7 +38,8 @@
       "AntiBugView": [
         {
           "id": "AntiBugView",
-          "name": "AntiBug View 여긴가"  
+          "name": "AntiBug View 여긴가",
+          "icon": "./images/logo.png"
         }
       ]
     },

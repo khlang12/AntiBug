@@ -22,7 +22,7 @@ async function activate(context) {
     // StatusBar 아이콘을 추가
     statusBarItem.show();
 
-    // View를 토글하기 위한 코드
+    // Primary Sidebar에 Tree view를 토글하기 위한 코드
     // 근데 이거 탐색기에 들어가면 안되고 AntiBug - Activity bar에서 실행되어야 하는 건디..
     if (treeView) {
         treeView.dispose();
@@ -30,6 +30,7 @@ async function activate(context) {
     } else {
         treeView = vscode.window.createTreeView('AntiBugView', {
             treeDataProvider: new AntiBugViewDataProvider(),
+            showCollapseAll: true
         });
     }
 
