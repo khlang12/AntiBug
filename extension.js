@@ -10,6 +10,8 @@ let currentPanel;
 async function activate(context) {
     console.log('Congratulations, your extension "AntiBug" is now active!');
 
+    //////////////// Status Bar ////////////////
+
     // StatusBar 아이콘 생성 >>>>>실패했어<<<<<< 왠지 모르겠네ㅜㅜ
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
     statusBarItem.text = '$(my-icon)';
@@ -22,19 +24,75 @@ async function activate(context) {
     // StatusBar 아이콘을 추가
     statusBarItem.show();
 
-    // Primary Sidebar에 Tree view를 토글하기 위한 코드
-    // 근데 이거 탐색기에 들어가면 안되고 AntiBug - Activity bar에서 실행되어야 하는 건디..
+
+
+    //////////////// Primary Sidebar ////////////////
+
+    // Primary Sidebar - [1] Testing 토글
+    class TestingDataProvider {
+        getTreeItem(element) {
+            console.log('Testing getChildren called');
+            return element;
+        }
+    
+        getChildren() {
+            console.log('Testing getChildren called');
+            return [
+                new vscode.TreeItem('Chain'),
+                new vscode.TreeItem('Address'),
+                new vscode.TreeItem('Gas Limit'),
+                new vscode.TreeItem('Value'),
+                new vscode.TreeItem('Contract')
+            ];
+        }
+    }
+
+    // Primary Sidebar - [1] Testing 토글 - 트리뷰
     if (treeView) {
         treeView.dispose();
         treeView = undefined;
     } else {
-        treeView = vscode.window.createTreeView('AntiBugView', {
-            treeDataProvider: new AntiBugViewDataProvider(),
+        treeView = vscode.window.createTreeView('testing', {
+            treeDataProvider: new TestingDataProvider(),
             showCollapseAll: true
         });
     }
 
-    // "AntiBug.testing" 명령 등록
+    // Primary Sidebar - [2] Security Analysis 토글
+    class SecurityAnalysisDataProvider {
+        getTreeItem(element) {
+            console.log('Security getTreeItem called:', element.label);
+            return element;
+        }
+    
+        getChildren() {
+            console.log('Security getChildren called');
+            return [
+                new vscode.TreeItem('Applicable rule'),
+                new vscode.TreeItem('Print Type'),
+                new vscode.TreeItem('Analysis'),
+                new vscode.TreeItem('Audit Report')
+            ];
+        }
+    }
+
+    // Primary SideBar - [2] Security Analysis 토글 - 트리뷰
+    if (treeView) {
+        treeView.dispose();
+        treeView = undefined;
+    } else {
+        treeView = vscode.window.createTreeView('security-analysis', {
+            treeDataProvider: new SecurityAnalysisDataProvider(),
+            showCollapseAll: true
+        });
+    }
+
+
+
+    //////////////// Command ////////////////
+
+
+    // "AntiBug.testing" Command 등록
     let disposable = vscode.commands.registerCommand('AntiBug.testing', async function () {
 
         // message 팝업 띄우기
@@ -69,10 +127,10 @@ async function activate(context) {
         }
     });
 
-    // "AntiBug.security-analysis" 명령 등록
+    // "AntiBug.security-analysis" Command 등록
 
 
-    // "AntiBug.openai" 명령 등록
+    // "AntiBug.openai" Command 등록
 
 
     context.subscriptions.push(disposable, statusBarItem);
@@ -95,20 +153,6 @@ async function getWebviewContent(context) {
 function deactivate() {
     if (currentPanel) {
         currentPanel.dispose();
-    }
-}
-
-class AntiBugViewDataProvider {
-    getTreeItem(element) {
-        return element;
-    }
-
-    getChildren() {
-        return [
-            new vscode.TreeItem('Item 1'),
-            new vscode.TreeItem('Item 2'),
-            new vscode.TreeItem('Item 3'),
-        ];
     }
 }
 

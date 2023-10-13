@@ -21,25 +21,29 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "AntiBug-activityBarIcon",
-          "title": "AntiBug",
+          "id": "AntiBug-explorer",
+          "title": "AntiBug Explorer",
           "icon": "./images/logo.png"
         }
       ]
     },
     "views": {
-      "AntiBug-activityBarIcon": [
+      "AntiBug-explorer": [
         {
-          "id": "AntiBug",
-          "name": "AntiBug",
-          "icon": "./images/logo.png"
-        }
-      ],
-      "AntiBugView": [
+          "id": "testing",
+          "name": "[1] Testing"
+        },
         {
-          "id": "AntiBugView",
-          "name": "AntiBug View 여긴가",
-          "icon": "./images/logo.png"
+          "id": "security-analysis",
+          "name": "[2] Security Analysis"
+        },
+        {
+          "id": "openai",
+          "name": "[3] OpenAI"
+        },
+        {
+          "id": "code-similarity",
+          "name": "[4] Code Similarity"
         }
       ]
     },
