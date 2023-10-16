@@ -7,6 +7,12 @@ let currentPanel;
 /**
  * @param {vscode.ExtensionContext} context
  */
+
+
+
+//////////////// activate ////////////////
+
+
 async function activate(context) {
     console.log('Congratulations, your extension "AntiBug" is now active!');
 
@@ -92,11 +98,13 @@ async function activate(context) {
     //////////////// Command ////////////////
 
 
-    // "AntiBug.testing" Command 등록
-    let disposable = vscode.commands.registerCommand('AntiBug.testing', async function () {
+    // [1] "AntiBug.testing" Command 등록
+    let testingCommand = vscode.commands.registerCommand('AntiBug.testing', async function () {
 
         // message 팝업 띄우기
-        vscode.window.showInformationMessage('Start AntiBug project from AntiBug!');
+        vscode.window.showInformationMessage('Start AntiBug Testing from AntiBug!');
+
+        vscode.ViewColumn.Two
 
         if (currentPanel) {
             // 이미 current panel이 있다면, 2번째 panel 열기
@@ -114,7 +122,7 @@ async function activate(context) {
 
             // View에 HTML 콘텐츠 설정
             try {
-                const htmlContent = await getWebviewContent(context);
+                const htmlContent = await getWebviewContent(context, 'AntiBug.testing');
                 currentPanel.webview.html = htmlContent;
             } catch (error) {
                 console.error('Error loading HTML content:', error);
@@ -127,18 +135,139 @@ async function activate(context) {
         }
     });
 
-    // "AntiBug.security-analysis" Command 등록
+    // [2] "AntiBug.security-analysis" Command 등록
+    let securityAnalysisCommand = vscode.commands.registerCommand('AntiBug.security-analysis', async function () {
 
+        // message 팝업 띄우기
+        vscode.window.showInformationMessage('Start Security Analysis from AntiBug!');
 
-    // "AntiBug.openai" Command 등록
+        if (currentPanel) {
+            // 이미 current panel이 있다면, 2번째 panel 열기
+            currentPanel.reveal(vscode.ViewColumn.Two);
+        } else {
+            // 아니라면, 새 패널 열기
+            currentPanel = vscode.window.createWebviewPanel(
+                'ResultView', // View ID
+                '[2] Security Analysis', // View 제목
+                vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+                {
+                    enableScripts: true // 웹페이지 스크립트 사용 가능
+                }
+            );
 
+            // View에 HTML 콘텐츠 설정
+            try {
+                const htmlContent = await getWebviewContent(context, 'AntiBug.security-analysis');
+                currentPanel.webview.html = htmlContent;
+            } catch (error) {
+                console.error('Error loading HTML content:', error);
+            }
 
-    context.subscriptions.push(disposable, statusBarItem);
+            // Reset when the current panel is closed
+            currentPanel.onDidDispose(() => {
+                currentPanel = undefined;
+            });
+        }
+    });
+
+    // [3] "AntiBug.openai" Command 등록
+    let openaiCommand = vscode.commands.registerCommand('AntiBug.openai', async function () {
+
+        // message 팝업 띄우기
+        vscode.window.showInformationMessage('Start OpenAI from AntiBug!');
+
+        if (currentPanel) {
+            // 이미 current panel이 있다면, 2번째 panel 열기
+            currentPanel.reveal(vscode.ViewColumn.Two);
+        } else {
+            // 아니라면, 새 패널 열기
+            currentPanel = vscode.window.createWebviewPanel(
+                'ResultView', // View ID
+                '[3] OpenAI', // View 제목
+                vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+                {
+                    enableScripts: true // 웹페이지 스크립트 사용 가능
+                }
+            );
+
+            // View에 HTML 콘텐츠 설정
+            try {
+                const htmlContent = await getWebviewContent(context, 'AntiBug.openai');
+                currentPanel.webview.html = htmlContent;
+            } catch (error) {
+                console.error('Error loading HTML content:', error);
+            }
+
+            // Reset when the current panel is closed
+            currentPanel.onDidDispose(() => {
+                currentPanel = undefined;
+            });
+        }
+    });
+
+    // [4] "AntiBug.CodeSimilarity" Command 등록
+    let codesimilarityCommand = vscode.commands.registerCommand('AntiBug.codesimilarity', async function () {
+
+        // message 팝업 띄우기
+        vscode.window.showInformationMessage('Start Code Similarity from AntiBug!');
+
+        if (currentPanel) {
+            // 이미 current panel이 있다면, 2번째 panel 열기
+            currentPanel.reveal(vscode.ViewColumn.Two);
+        } else {
+            // 아니라면, 새 패널 열기
+            currentPanel = vscode.window.createWebviewPanel(
+                'ResultView', // View ID
+                '[4] Code Similarity', // View 제목
+                vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+                {
+                    enableScripts: true // 웹페이지 스크립트 사용 가능
+                }
+            );
+
+            // View에 HTML 콘텐츠 설정
+            try {
+                const htmlContent = await getWebviewContent(context, 'AntiBug.codesimilarity');
+                currentPanel.webview.html = htmlContent;
+            } catch (error) {
+                console.error('Error loading HTML content:', error);
+            }
+
+            // Reset when the current panel is closed
+            currentPanel.onDidDispose(() => {
+                currentPanel = undefined;
+            });
+        }
+    });
+
+    context.subscriptions.push(testingCommand, statusBarItem);
+    context.subscriptions.push(securityAnalysisCommand, statusBarItem);
+    context.subscriptions.push(openaiCommand, statusBarItem);
+    context.subscriptions.push(codesimilarityCommand, statusBarItem);
 }
 
-async function getWebviewContent(context) {
-    // 외부 HTML 파일 경로 (testing.html 파일이 extension 루트에 있는 경우)
-    const htmlFilePath = vscode.Uri.file(context.extensionPath + '/testing.html');
+
+
+//////////////// HTML ////////////////
+
+
+// Webview 경로에 따른 HTML 페이지
+async function getWebviewContent(context, command) {
+    let htmlFilePath;
+
+    // Command에 따른 HTML 페이지
+    if (command === 'AntiBug.testing') {
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/testing.html');
+    } else if (command === 'AntiBug.security-analysis') {
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/security-analysis.html');
+    } else if (command === 'AntiBug.openai') {
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/openai.html');
+    } else if (command === 'AntiBug.codesimilarity') {
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/codesimilarity.html');
+    } else {
+        // 기본 HTML 파일 (예: testing.html)을 로드하거나, 다른 명령 처리 방법을 추가하세요.
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/testing.html');
+    }
 
     // 파일을 읽어서 HTML 내용을 반환
     try {
@@ -149,7 +278,10 @@ async function getWebviewContent(context) {
     }
 }
 
-// This method is called when your extension is deactivated
+
+//////////////// deactivate ////////////////
+
+
 function deactivate() {
     if (currentPanel) {
         currentPanel.dispose();
