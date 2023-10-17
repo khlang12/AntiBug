@@ -30,20 +30,12 @@
     "views": {
       "AntiBug-explorer": [
         {
-          "id": "testing",
-          "name": "[1] Testing"
+          "id": "deploy",
+          "name": "[1] Deploy"
         },
         {
           "id": "security-analysis",
           "name": "[2] Security Analysis"
-        },
-        {
-          "id": "openai",
-          "name": "[3] OpenAI"
-        },
-        {
-          "id": "code-similarity",
-          "name": "[4] Code Similarity"
         }
       ]
     },
@@ -61,20 +53,12 @@
     ],
     "commands": [
       {
-        "command": "AntiBug.testing",
-        "title": "AntiBug Testing"
+        "command": "AntiBug.deploy",
+        "title": "AntiBug Deploy"
       },
       {
         "command": "AntiBug.security-analysis",
         "title" : "AntiBug Security Analysis"
-      },
-      {
-        "command": "AntiBug.openai",
-        "title": "AntiBug OpenAI"
-      },
-      {
-        "command": "AntiBug.codesimilarity",
-        "title": "AntiBug Code Similarity"
       },
       {
         "command": "AntiBug.toggleView",
