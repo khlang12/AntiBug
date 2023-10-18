@@ -113,7 +113,7 @@ function activate(context) {
 
 ////////////////// Function //////////////////
 
-// Webview 경로에 따른 HTML 페이지 연결
+////// Webview 경로에 따른 HTML 페이지 연결
 async function getWebviewContent(context, command) {
     let htmlFilePath;
 
@@ -206,9 +206,10 @@ async function openSecurityAnalysisPanel(context) {
     }
 }
 
-// [3] "AntiBug.solfile" Command의 동작
+////// 모든 .sol 파일 찾기 함수
 async function findSolFiles(folderPath) {
     const solFiles = [];
+
     async function findFilesRecursively(folderPath) {
         const entries = await fs.readdir(folderPath);
         for (const entry of entries) {
@@ -225,6 +226,44 @@ async function findSolFiles(folderPath) {
     return solFiles;
 }
 
+////// 현재 활성 파일 중 .sol 파일 찾기 함수
+async function findVisibleSolFiles() {
+
+    // 현재 열려있는 모든 파일 찾기
+    const allVisibleTextEditors = vscode.window.visibleTextEditors;
+    const visibleSolFiles = [];
+
+    // 확인용 출력 채널 생성
+    const outputChannel = vscode.window.createOutputChannel('Visible File List Channel');
+
+    // 현재 열려있는 파일 하나씩 꺼내보기
+    for (const textEditor of allVisibleTextEditors) {
+        const visibleFileUri = textEditor.document.uri; // 현재 열려있는 파일 uri
+        const visibleFilePath = visibleFileUri.fsPath;  // 현재 열려있는 파일 경로
+        const visibleFileExtension = path.extname(visibleFilePath); // 현재 열려있는 파일 확장자 추출
+
+        // 현재 열려있는 파일이 .sol 파일이면 visibleSolFiles 리스트에 추가
+        if (visibleFileExtension === '.sol') {
+            visibleSolFiles.push(visibleFilePath);
+        }
+        outputChannel.appendLine(visibleFilePath);  // 확인용 출력 채널
+    }
+
+    // visibelSolFiles 리스트 확인용 출력 채널 생성
+    if (visibleSolFiles.length > 0) {   // 열려있는 파일이 sol 파일이면 path 반환
+        outputChannel.appendLine('Visible Sol File List Channel');
+        for (const visibleSolFile of visibleSolFiles) {
+            outputChannel.appendLine(visibleSolFile);
+        }
+    } else {    // 열려있는 파일이 sol 파일이 아니면 아니라고 반환
+        visibleSolFiles.push('Not Sol File');
+    }
+
+    outputChannel.show();
+    return visibleSolFiles;
+}
+
+// [3] "AntiBug.solfile" Command의 동작
 async function openSolfilePanel(workspaceFolderPath) {
 
     // message 팝업 띄우기
@@ -237,18 +276,26 @@ async function openSolfilePanel(workspaceFolderPath) {
 
     // Webview 패널 생성
     solfilePanel = vscode.window.createWebviewPanel(
-        'webViewExample',
+        'WebViewExample',
         'Sol Files in Workspace',
         vscode.ViewColumn.One,
         {}
     );
 
+    // 현재 열려있는 파일 중 .sol 파일 찾기
+    const visibleSolFiles = await findVisibleSolFiles();
+
     // 모든 .sol 파일 찾기
     const solFiles = await findSolFiles(workspaceFolderPath);
 
-    // .sol 파일 목록을 HTML로 변환
+    // .sol 파일 목록을 HTML list로 변환
     const fileItems = solFiles.map((filePath) => `<li>${filePath}</li>`).join('');
+
+    // .sol 파일 목록을 HTML dropdown option으로 변환
     const dropdownItems = solFiles.map((filePath) => `<option value=${filePath}>${filePath}</option>`).join('');
+
+    // submit 버튼을 누를 때 실행될 js 코드
+    const submitScript = ``
 
     // WebView에 HTML 내용 설정
     const htmlContent = `
@@ -259,6 +306,9 @@ async function openSolfilePanel(workspaceFolderPath) {
     </head>
     <body>
       <h1>SOL Files in Workspace</h1>
+
+      <h3>Visible SOL files</h3>
+      <p>Visible Sol File : ${visibleSolFiles}</p>
 
       <h3>SOL Files DROPDOWN</h3>
       <form action="#">
