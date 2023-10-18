@@ -22,8 +22,9 @@
       "activitybar": [
         {
           "id": "AntiBug-explorer",
-          "title": "AntiBug",
-          "icon": "./images/logo.png"
+          "title": "AntiBug Explorer",
+          "icon": "./images/logo.png",
+          "type": "webview"
         }
       ]
     },
@@ -34,7 +35,7 @@
           "name": "[1] Deploy"
         },
         {
-          "id": "security-analysis",
+          "id": "securityanalysis",
           "name": "[2] Security Analysis"
         }
       ]
@@ -54,11 +55,18 @@
     "commands": [
       {
         "command": "AntiBug.deploy",
-        "title": "AntiBug Deploy"
+        "title": "AntiBug Deploy",
+        "comment": "[1]"
       },
       {
-        "command": "AntiBug.security-analysis",
-        "title" : "AntiBug Security Analysis"
+        "command": "AntiBug.securityanalysis",
+        "title" : "AntiBug Security Analysis",
+        "comment": "[2]"
+      },
+      {
+        "command": "AntiBug.solfile",
+        "title": "AntiBug Open SOL file",
+        "comment" : "[3]"
       }
     ]
   },

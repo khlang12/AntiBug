@@ -1,22 +1,13 @@
 const vscode = require('vscode');
-const fs = require('fs').promises; // fs.promises 모듈 추가
+const path = require('path');
+const fs = require('fs').promises;
 
 let treeView;
-let currentPanel;           // 현재 탭을 위한 패널 변수
-let deployPanel;            // deploy 탭을 위한 패널 변수
-let securityAnalysisPanel;  // security-analysis 탭을 위한 패널 변수
+let deployPanel;
+let securityAnalysisPanel;
+let solfilePanel;
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-
-
-
-//////////////// activate ////////////////
-
-
-async function activate(context) {
-    console.log('Congratulations, your extension "AntiBug" is now active!');
+function activate(context) {
 
     //////////////// Status Bar ////////////////
 
@@ -95,103 +86,44 @@ async function activate(context) {
         });
     }
 
-
-
-    //////////////// Command ////////////////
+    ////////////////// Command //////////////////
 
     // [1] "AntiBug.deploy" Command 등록
-    let deployCommand = vscode.commands.registerCommand('AntiBug.deploy', async function () {
-
-        // message 팝업 띄우기
-        vscode.window.showInformationMessage('Start AntiBug Deploy!');
-
-        // deploy.html 띄우기
-        if (deployPanel) {
-            // 이미 deploy 패널이 있다면, 2번째 panel 열기
-            deployPanel.reveal(vscode.ViewColumn.Two);
-        } else {
-            // 아니라면, 새 패널 열기
-            deployPanel = vscode.window.createWebviewPanel(
-                'ResultView', // View ID
-                '[1] Deploy', // View 제목
-                vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
-                {
-                    enableScripts: true // 웹페이지 스크립트 사용 가능
-                }
-            );
-
-            // View에 HTML 콘텐츠 설정
-            try {
-                const htmlContent = await getWebviewContent(context, 'AntiBug.deploy');
-                deployPanel.webview.html = htmlContent;
-            } catch (error) {
-                console.error('Error loading HTML content:', error);
-            }
-
-            // Reset when the deploy panel is closed
-            deployPanel.onDidDispose(() => {
-                deployPanel = undefined;
-            });
-        }
+    const deployCommand = vscode.commands.registerCommand('AntiBug.deploy', () => {
+        openDeployPanel(context);
     });
 
-    // [2] "AntiBug.security-analysis" Command 등록
-    let securityAnalysisCommand = vscode.commands.registerCommand('AntiBug.security-analysis', async function () {
-
-        // message 팝업 띄우기
-        vscode.window.showInformationMessage('Start AntiBug Security Analysis!');
-
-        if (securityAnalysisPanel) {
-            // 이미 security-analysis 패널이 있다면, 2번째 panel 열기
-            securityAnalysisPanel.reveal(vscode.ViewColumn.Two);
-        } else {
-            // 아니라면, 새 패널 열기
-            securityAnalysisPanel = vscode.window.createWebviewPanel(
-                'ResultView', // View ID
-                '[2] Security Analysis', // View 제목
-                vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
-                {
-                    enableScripts: true // 웹페이지 스크립트 사용 가능
-                }
-            );
-
-            // View에 HTML 콘텐츠 설정
-            try {
-                const htmlContent = await getWebviewContent(context, 'AntiBug.security-analysis');
-                securityAnalysisPanel.webview.html = htmlContent;
-            } catch (error) {
-                console.error('Error loading HTML content:', error);
-            }
-
-            // Reset when the security-analysis panel is closed
-            securityAnalysisPanel.onDidDispose(() => {
-                securityAnalysisPanel = undefined;
-            });
-        }
+    // [2] "AntiBug.securityanalysis" Command 등록
+    const securityAnalysisCommand = vscode.commands.registerCommand('AntiBug.securityanalysis', () => {
+        openSecurityAnalysisPanel(context);
     });
 
+    // [3] "AntiBug.solfile" Command 등록
+    const solfileCommand = vscode.commands.registerCommand('AntiBug.solfile', () => {
+        openSolfileWebview();
+    });
 
-    context.subscriptions.push(deployCommand, statusBarItem);
-    context.subscriptions.push(securityAnalysisCommand, statusBarItem);
+    context.subscriptions.push(deployCommand, securityAnalysisCommand, solfileCommand);
+
+    // 초기 워크스페이스 열기
+    openSolfileWebview();
 }
 
 
 
-//////////////// HTML ////////////////
+////////////////// Function //////////////////
 
-
-// Webview 경로에 따른 HTML 페이지
+// Webview 경로에 따른 HTML 페이지 연결
 async function getWebviewContent(context, command) {
     let htmlFilePath;
 
     // Command에 따른 HTML 페이지
     if (command === 'AntiBug.deploy') {
         htmlFilePath = vscode.Uri.file(context.extensionPath + '/deploy.html');
-    } else if (command === 'AntiBug.security-analysis') {
+    } else if (command === 'AntiBug.securityanalysis') {
         htmlFilePath = vscode.Uri.file(context.extensionPath + '/security-analysis.html');
     } else {
-        // 기본 HTML 파일 (예: testing.html)을 로드하거나, 다른 명령 처리 방법을 추가하세요.
-        htmlFilePath = vscode.Uri.file(context.extensionPath + '/deploy.html');
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/test.html');
     }
 
     // 파일을 읽어서 HTML 내용을 반환
@@ -203,13 +135,168 @@ async function getWebviewContent(context, command) {
     }
 }
 
+// [1] "AntiBug.deploy" Command의 동작
+async function openDeployPanel(context) {
 
-//////////////// deactivate ////////////////
+    // message 팝업 띄우기
+    vscode.window.showInformationMessage('Start AntiBug Deploy!');
 
+    // deploy.html 띄우기
+    if (deployPanel) {
+        // 이미 deploy 패널이 있다면, 2번째 panel 열기
+        deployPanel.reveal(vscode.ViewColumn.Two);
+    } else {
+        // 아니라면, 새 패널 열기
+        deployPanel = vscode.window.createWebviewPanel(
+            'ResultView', // View ID
+            '[1] Deploy', // View 제목
+            vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+            {
+                enableScripts: true // 웹페이지 스크립트 사용 가능
+            }
+        );
+
+        // View에 HTML 콘텐츠 설정
+        try {
+            const htmlContent = await getWebviewContent(context, 'AntiBug.deploy');
+            deployPanel.webview.html = htmlContent;
+        } catch (error) {
+            console.error('Error loading HTML content:', error);
+        }
+
+        //deploy panel 닫으면 Reset
+        deployPanel.onDidDispose(() => {
+            deployPanel = undefined;
+        });
+    }
+}
+
+// [2] "AntiBug.security-analysis" Command의 동작
+async function openSecurityAnalysisPanel(context) {
+
+    // message 팝업 띄우기
+    vscode.window.showInformationMessage('Start AntiBug Security Analysis!');
+
+    if (securityAnalysisPanel) {
+        // 이미 security-analysis 패널이 있다면, 2번째 panel 열기
+        securityAnalysisPanel.reveal(vscode.ViewColumn.Two);
+    } else {
+        // 아니라면, 새 패널 열기
+        securityAnalysisPanel = vscode.window.createWebviewPanel(
+            'ResultView', // View ID
+            '[2] Security Analysis', // View 제목
+            vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+            {
+                enableScripts: true // 웹페이지 스크립트 사용 가능
+            }
+        );
+
+        // View에 HTML 콘텐츠 설정
+        try {
+            const htmlContent = await getWebviewContent(context, 'AntiBug.securityanalysis');
+            securityAnalysisPanel.webview.html = htmlContent;
+        } catch (error) {
+            console.error('Error loading HTML content:', error);
+        }
+
+        // security-analysis panel 닫으면 Reset
+        securityAnalysisPanel.onDidDispose(() => {
+            securityAnalysisPanel = undefined;
+        });
+    }
+}
+
+// [3] "AntiBug.solfile" Command의 동작
+async function findSolFiles(folderPath) {
+    const solFiles = [];
+    async function findFilesRecursively(folderPath) {
+        const entries = await fs.readdir(folderPath);
+        for (const entry of entries) {
+            const entryPath = path.join(folderPath, entry);
+            const stats = await fs.stat(entryPath);
+            if (stats.isDirectory()) {
+                await findFilesRecursively(entryPath);
+            } else if (path.extname(entry) === '.sol') {
+                solFiles.push(entryPath);
+            }
+        }
+    }
+    await findFilesRecursively(folderPath);
+    return solFiles;
+}
+
+async function openSolfilePanel(workspaceFolderPath) {
+
+    // message 팝업 띄우기
+    vscode.window.showInformationMessage('Start AntiBug Open SOL file!');
+
+    // 이미 패널이 열려있으면 리셋하고 새로 열기
+    if (solfilePanel) {
+        solfilePanel.dispose();
+    }
+
+    // Webview 패널 생성
+    solfilePanel = vscode.window.createWebviewPanel(
+        'webViewExample',
+        'Sol Files in Workspace',
+        vscode.ViewColumn.One,
+        {}
+    );
+
+    // 모든 .sol 파일 찾기
+    const solFiles = await findSolFiles(workspaceFolderPath);
+
+    // .sol 파일 목록을 HTML로 변환
+    const fileItems = solFiles.map((filePath) => `<li>${filePath}</li>`).join('');
+
+    // WebView에 HTML 내용 설정
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>SOL Files in Workspace</title>
+    </head>
+    <body>
+      <h1>SOL Files in Workspace</h1>
+      <ul>
+        ${fileItems}
+      </ul>
+    </body>
+    </html>
+  `;
+
+    // WebView에 HTML 내용 설정
+    solfilePanel.webview.html = htmlContent;
+
+    // solfilePanel이 닫힐 때 리셋
+    solfilePanel.onDidDispose(() => {
+        solfilePanel = undefined;
+    });
+}
+
+async function openSolfileWebview() {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+        const workspaceFolder = workspaceFolders[0];
+        const workspaceFolderPath = workspaceFolder.uri.fsPath;
+
+        // Webview 열기
+        openSolfilePanel(workspaceFolderPath);
+    } else {
+        vscode.window.showErrorMessage('No workspace folders are open.');
+    }
+}
+
+
+
+////////////////// Function //////////////////
 
 function deactivate() {
-    if (currentPanel) {
-        currentPanel.dispose();
+    if (deployPanel) {
+        deployPanel.dispose();
+    }
+    if (solfilePanel) {
+        solfilePanel.dispose();
     }
 }
 
