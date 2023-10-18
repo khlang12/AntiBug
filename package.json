@@ -22,7 +22,7 @@
       "activitybar": [
         {
           "id": "AntiBug-explorer",
-          "title": "AntiBug Explorer",
+          "title": "AntiBug",
           "icon": "./images/logo.png"
         }
       ]
@@ -59,11 +59,6 @@
       {
         "command": "AntiBug.security-analysis",
         "title" : "AntiBug Security Analysis"
-      },
-      {
-        "command": "AntiBug.toggleView",
-        "title": "Toggle AntiBug View",
-        "comment" : "음 이 명령어 안 쓰이는 것 같은데용 그래도 혹시 모르니 냅둔다"
       }
     ]
   },

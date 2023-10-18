@@ -105,6 +105,7 @@ async function activate(context) {
         // message 팝업 띄우기
         vscode.window.showInformationMessage('Start AntiBug Deploy!');
 
+        // deploy.html 띄우기
         if (deployPanel) {
             // 이미 deploy 패널이 있다면, 2번째 panel 열기
             deployPanel.reveal(vscode.ViewColumn.Two);
