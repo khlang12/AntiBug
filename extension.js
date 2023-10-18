@@ -248,6 +248,7 @@ async function openSolfilePanel(workspaceFolderPath) {
 
     // .sol 파일 목록을 HTML로 변환
     const fileItems = solFiles.map((filePath) => `<li>${filePath}</li>`).join('');
+    const dropdownItems = solFiles.map((filePath) => `<option value=${filePath}>${filePath}</option>`).join('');
 
     // WebView에 HTML 내용 설정
     const htmlContent = `
@@ -258,6 +259,17 @@ async function openSolfilePanel(workspaceFolderPath) {
     </head>
     <body>
       <h1>SOL Files in Workspace</h1>
+
+      <h3>SOL Files DROPDOWN</h3>
+      <form action="#">
+        <label for="solfile">Select SOL file</label>
+        <select name="selectsolfile" id="solfile">
+            ${dropdownItems}
+        </select>
+        <input type="submit" value="Submit" />
+      </form>
+
+      <h3>SOL Files LIST</h3>
       <ul>
         ${fileItems}
       </ul>
