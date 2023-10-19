@@ -295,7 +295,7 @@ async function openSolfilePanel(workspaceFolderPath) {
     const dropdownItems = solFiles.map((filePath) => `<option value=${filePath}>${filePath}</option>`).join('');
 
     // submit 버튼을 누를 때 실행될 js 코드
-    const submitScript = ``
+    // const submitScript = ``
 
     // WebView에 HTML 내용 설정
     const htmlContent = `
