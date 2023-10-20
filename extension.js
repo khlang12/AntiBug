@@ -1,13 +1,24 @@
 const vscode = require('vscode');
 const path = require('path');
-const fs = require('fs').promises;
+const fs = require('fs');
+const markdownIt = require('markdown-it');
+const md = markdownIt();
 
 let treeView;
 let deployPanel;
 let securityAnalysisPanel;
 let solfilePanel;
+let TestPanel;
+let AuditReportPanel;
 
 function activate(context) {
+
+    module.exports = {
+        extendMarkdownIt: function(md) {
+            return md.use(require('markdown-it-emoji'));
+        }
+    };
+    
 
     //////////////// Status Bar ////////////////
 
@@ -86,6 +97,8 @@ function activate(context) {
         });
     }
 
+
+
     ////////////////// Command //////////////////
 
     // [1] "AntiBug.deploy" Command 등록
@@ -103,7 +116,17 @@ function activate(context) {
         openSolfileWebview();
     });
 
-    context.subscriptions.push(deployCommand, securityAnalysisCommand, solfileCommand);
+    // [4] "AntiBug.test" Command 등록
+    const testCommand = vscode.commands.registerCommand('AntiBug.test', () => {
+        openTestPanel(context);
+    });
+
+    // [5] "AntiBug.auditreport" Command 등록
+    const auditreportCommand = vscode.commands.registerCommand('AntiBug.auditreport', () => {
+        openAuditReportPanel(context);
+    })
+
+    context.subscriptions.push(deployCommand, securityAnalysisCommand, solfileCommand, testCommand, auditreportCommand);
 
     // 초기 워크스페이스 열기
     openSolfileWebview();
@@ -116,19 +139,31 @@ function activate(context) {
 ////// Webview 경로에 따른 HTML 페이지 연결
 async function getWebviewContent(context, command) {
     let htmlFilePath;
+    let markdownFilePath;
 
     // Command에 따른 HTML 페이지
     if (command === 'AntiBug.deploy') {
-        htmlFilePath = vscode.Uri.file(context.extensionPath + '/deploy.html');
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/pages/deploy.html');
     } else if (command === 'AntiBug.securityanalysis') {
-        htmlFilePath = vscode.Uri.file(context.extensionPath + '/security-analysis.html');
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/pages/security-analysis.html');
+    } else if (command === 'AntiBug.test') {
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/pages/test.html');
+    } else if (command === 'AntiBug.auditreport') {
+        markdownFilePath = vscode.Uri.file(context.extensionPath + '/pages/auditreport.md');
+
+        try {
+            const markdownContent = await fs.readFileSync(markdownFilePath.fsPath, 'utf-8');
+            return md.render(markdownContent);
+        } catch (error) {
+            throw error;
+        }
     } else {
-        htmlFilePath = vscode.Uri.file(context.extensionPath + '/test.html');
+        htmlFilePath = vscode.Uri.file(context.extensionPath + '/pages/test.html');
     }
 
     // 파일을 읽어서 HTML 내용을 반환
     try {
-        const data = await fs.readFile(htmlFilePath.fsPath);
+        const data = await fs.promises.readFile(htmlFilePath.fsPath);
         return data.toString();
     } catch (error) {
         throw error;
@@ -211,10 +246,10 @@ async function findSolFiles(folderPath) {
     const solFiles = [];
 
     async function findFilesRecursively(folderPath) {
-        const entries = await fs.readdir(folderPath);
+        const entries = await fs.promises.readdir(folderPath);
         for (const entry of entries) {
             const entryPath = path.join(folderPath, entry);
-            const stats = await fs.stat(entryPath);
+            const stats = await fs.promises.stat(entryPath);
             if (stats.isDirectory()) {
                 await findFilesRecursively(entryPath);
             } else if (path.extname(entry) === '.sol') {
@@ -250,13 +285,11 @@ async function findVisibleSolFiles() {
     }
 
     // visibelSolFiles 리스트 확인용 출력 채널 생성
-    if (visibleSolFiles.length > 0) {   // 열려있는 파일이 sol 파일이면 path 반환
+    if (visibleSolFiles.length > 0) {
         outputChannel.appendLine('Visible Sol File List Channel');
         for (const visibleSolFile of visibleSolFiles) {
             outputChannel.appendLine(visibleSolFile);
         }
-    } else {    // 열려있는 파일이 sol 파일이 아니면 아니라고 반환
-        visibleSolFiles.push('Not Sol File');
     }
 
     outputChannel.show();
@@ -349,6 +382,77 @@ async function openSolfileWebview() {
     }
 }
 
+// [4] "AntiBug.test" Command의 동작
+async function openTestPanel(context) {
+
+    // message 팝업 띄우기
+    vscode.window.showInformationMessage('Start AntiBug Test!');
+
+    // test.html 띄우기
+    if (TestPanel) {
+        // 이미 test 패널이 있다면, 2번째 panel 열기
+        TestPanel.reveal(vscode.ViewColumn.Two);
+    } else {
+        // 아니라면, 새 패널 열기
+        TestPanel = vscode.window.createWebviewPanel(
+            'ResultView', // View ID
+            '[4] Test', // View 제목
+            vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+            {
+                enableScripts: true // 웹페이지 스크립트 사용 가능
+            }
+        );
+
+        // View에 HTML 콘텐츠 설정
+        try {
+            const htmlContent = await getWebviewContent(context, 'AntiBug.test');
+            TestPanel.webview.html = htmlContent;
+        } catch (error) {
+            console.error('Error loading HTML content:', error);
+        }
+
+        //test panel 닫으면 Reset
+        TestPanel.onDidDispose(() => {
+            TestPanel = undefined;
+        });
+    }
+}
+
+// [5] "AntiBug.auditreport" Command의 동작
+async function openAuditReportPanel(context) {
+
+    // message 팝업 띄우기
+    vscode.window.showInformationMessage('Start AntiBug Audit Report!');
+
+    if (AuditReportPanel) {
+        // 이미 audit report 패널이 있다면, 2번째 panel 열기
+        AuditReportPanel.reveal(vscode.ViewColumn.Two);
+    } else {
+        // 아니라면, 새 패널 열기
+        AuditReportPanel = vscode.window.createWebviewPanel(
+            'ResultView', // View ID
+            '[5] Audit Report', // View 제목
+            vscode.ViewColumn.Two, // 오른쪽에 분리된 패널로 열릴 위치
+            {
+                enableScripts: true // 웹페이지 스크립트 사용 가능
+            }
+        );
+
+        try {
+            // Markdown 파일을 HTML로 변환
+            const htmlContent = await getWebviewContent(context, 'AntiBug.auditreport')
+            AuditReportPanel.webview.html = htmlContent;
+
+        } catch (error) {
+            console.error('Error loading Markdown content:', error);
+        }
+
+        // audit report panel 닫으면 Reset
+        AuditReportPanel.onDidDispose(() => {
+            AuditReportPanel = undefined;
+        });
+    }
+}
 
 
 ////////////////// Function //////////////////

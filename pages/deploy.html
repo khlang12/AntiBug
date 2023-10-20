@@ -33,19 +33,24 @@
         }
 
         ul.tabs li.current {
-            background: #c5c5c5;
+            background: #82C0DA;
             color: #222;
+
         }
 
         .tab-content {
             display: none;
-            background: #c5c5c5;
+            background: #82C026;
             color: #000000;
             padding: 15px;
         }
 
         .tab-content.current {
             display: inherit;
+        }
+
+        .card {
+            background-color: #ffffff;
         }
     </style>
 </head>
@@ -59,6 +64,15 @@
         <div id="tab-1" class="tab-content current">
             tab content1
             <button>남령이 Slither 붙여보세용</button>
+            <div class="card">
+                <button>Toggle ▼</button>
+                <div class="card-header">
+                    Storage(address)
+                </div>
+                <div class="card-body">
+                    <h4>ETH info</h4>
+                </div>
+            </div>
         </div>
         <div id="tab-2" class="tab-content">
             tab content2

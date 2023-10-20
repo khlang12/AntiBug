@@ -1,9 +1,8 @@
-
 {
   "name": "antibug",
   "displayName": "AntiBug",
   "description": "AntiBug",
-  "icon" : "./images/my-icon.png",
+  "icon": "./images/my-icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.83.0"
@@ -11,12 +10,8 @@
   "categories": [
     "Other"
   ],
-
-
   "activationEvents": [],
   "main": "./extension.js",
-
-
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -60,17 +55,26 @@
       },
       {
         "command": "AntiBug.securityanalysis",
-        "title" : "AntiBug Security Analysis",
+        "title": "AntiBug Security Analysis",
         "comment": "[2]"
       },
       {
         "command": "AntiBug.solfile",
         "title": "AntiBug Open SOL file",
-        "comment" : "[3]"
+        "comment": "[3]"
+      },
+      {
+        "command": "AntiBug.test",
+        "title": "AntiBug Test",
+        "comment": "[4]"
+      },
+      {
+        "command": "AntiBug.auditreport",
+        "title": "AntiBug Audit Report",
+        "comment": "[5] Markdown Viewer"
       }
     ]
   },
-
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
@@ -86,5 +90,13 @@
     "glob": "^10.3.3",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "markdown-it": "^13.0.2",
+    "marked": "^9.1.2",
+    "rehype-stringify": "^10.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.0.0",
+    "unified": "^11.0.3"
   }
 }
